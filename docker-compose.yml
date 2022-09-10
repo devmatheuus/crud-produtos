@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  api:
+    container_name: api
+    image: api-sql
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      - DB_USER=matheus
+      - DB_PASSWORD=matheus161700
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB=products_management
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: db
+    image: postgres:12
+    ports:
+      - 5430:5432
+    environment:
+      - POSTGRES_USER=matheus
+      - POSTGRES_PASSWORD=matheus161700
+      - POSTGRES_DB=products_management
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U matheus -d products_management"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
